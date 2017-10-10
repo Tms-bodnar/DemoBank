@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- A History tábla kezelésének konfigurációja -->
+<mapper namespace="main.java.pojos.History">
+	<resultMap type="History" id="historyResult">
+		<result property="id" column="ID" />
+		<result property="fromAccount" column="FROM_ACCOUNT" />
+		<result property="toAccount" column="TO_ACCOUNT" />
+		<result property="amount" column="AMOUNT" />
+	</resultMap>
+	<insert id="insertNewHistory" parameterType="History"
+		useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO BANKDEMO.HISTORY (FROM_ACCOUNT, TO_ACCOUNT, AMOUNT)
+		VALUES (#{fromAccount}, #{toAccount}, #{amount})
+	</insert>
+	<select id="selectHistories" parameterType="int" resultMap="historyResult">
+		SELECT * FROM BANKDEMO.HISTORY WHERE FROM_ACCOUNT = #{id} OR
+		TO_ACCOUNT = #{id};
+	</select>
+
+</mapper>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- Az Accounts tábla kezelésének konfigurációja -->
+<mapper namespace="main.java.pojos.Accounts">
+	<resultMap type="Accounts" id="accountsResult">
+		<result property="id" column="ID" />
+		<result property="accountNumber" column="ACCOUNT_NUMBER" />
+		<result property="currency" column="CURRENCY" />
+		<result property="balance" column="BALANCE" />
+		<result property="userId" column="USER_ID" />
+	</resultMap>
+	<select id="getAllAccounts" resultMap="accountsResult">
+		SELECT * FROM BANKDEMO.ACCOUNTS ORDER BY ID ASC;
+	</select>
+	<select id="getUserAllAccounts" parameterType="int" resultMap="accountsResult">
+		SELECT * FROM BANKDEMO.ACCOUNTS WHERE USER_ID = #{id};
+	</select>
+	<select id="getOtherAccounts" parameterType="int" resultMap="accountsResult">
+		SELECT * FROM BANKDEMO.ACCOUNTS WHERE USER_ID != #{id};
+	</select>
+	<select id="getToAccounts" parameterType="String" resultMap="accountsResult">
+		SELECT * FROM BANKDEMO.ACCOUNTS WHERE CURRENCY = #{currency};
+	</select>
+	<update id="updateAccount" parameterType="Accounts">
+		UPDATE BANKDEMO.ACCOUNTS SET BALANCE = #{balance} WHERE ID = #{id};
+	</update>
+</mapper>

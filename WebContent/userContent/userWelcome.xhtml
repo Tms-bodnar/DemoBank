@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+          "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+	xmlns:h="http://xmlns.jcp.org/jsf/html"
+	xmlns:pt="http://xmlns.jcp.org/jsf/passthrough"
+	xmlns:f="http://xmlns.jcp.org/jsf/core">
+<h:head>
+	<title><ui:insert name="title">Welcome to DemoBank, #{userService.user.name}!</ui:insert></title>
+	<h:outputStylesheet library="css" name="style.css" />
+</h:head>
+
+<body>
+
+
+	<div class="login">
+
+		<h3 align="center" class="login_h3">Welcome to DemoBank,
+			#{userService.user.name}!</h3>
+		<div align="center" class="btn-line">
+			<h:form id="buttons">
+				<h:commandButton class="btn-line" type="submit"
+					value="Account balances" id="balances"
+					action="#{userService.getUserAllAccounts(userService.user.id)}" />
+				<h:commandButton class="btn-line" type="submit" value="Transfer"
+					id="transfer"
+					action="#{userService.getOtherAccounts(userService.user.id)}"
+					actionListener="#{userService.getUserAllAccounts(userService.user.id)}" />
+				<h:commandButton class="btn-line" type="submit" value="History"
+					id="history"
+					action="#{userService.getUserHistory(userService.user.id)}"
+					actionListener="#{userService.getUserAllAccounts(userService.user.id)}"></h:commandButton>
+				<h:commandButton class="btn-line" value="Logout" id="logout"
+					action="#{userService.logoutFirst}"></h:commandButton>
+				<br />
+				<br />
+				<h:commandButton value="Yes, Logout" id="Yeslogout"
+					action="#{userService.logoutSecond}" rendered="#{userService.logout}"></h:commandButton>
+				<h:commandButton value="Nope!" id="noLogout"
+					rendered="#{userService.logout}"
+					action="#{userService.setLogout(false)}"></h:commandButton>
+				<h:messages />
+			</h:form>
+		</div>
+	</div>
+	<br />
+	<br />
+	<div id="center" align="center" style="width: 100%" class="login">
+		<h:form id="accounts">
+			<div class="centered">
+				<h:panelGrid styleClass="centered">
+					<h:dataTable styleClass="table_one" rowClasses="td_one"
+						var="account" id="accTable" value="#{userService.userAllAccounts}"
+						rendered="#{userService.accountsRendered}">
+						<h:column>
+							<f:facet name="header">
+                        Account number
+                    </f:facet>
+							<h:outputText value="#{account.accountNumber}" />
+						</h:column>
+
+						<h:column>
+							<f:facet name="header">
+                        Currency
+                    </f:facet>
+							<h:outputText value="#{account.currency}" />
+						</h:column>
+						<h:column>
+							<f:facet name="header">
+                        Balance
+                    </f:facet>
+							<h:outputText value="#{account.balance}" />
+						</h:column>
+					</h:dataTable>
+				</h:panelGrid>
+			</div>
+		</h:form>
+		<div align="center" class="login">
+			<h:form id="transfer">
+				<h:outputLabel rendered="#{userService.transferRendered}"
+					value="From:" />
+				<h:selectOneMenu id="userAcc" value="#{userService.accountNumber}"
+					rendered="#{userService.transferRendered}"
+					title="Choose an account!" converter="#{AccountsConverter}"
+					onclick="submit()"
+					valueChangeListener="#{userService.valueChanged}">
+					<f:selectItems value="#{userService.userAccountsNumbers}"
+						var="account" itemValue="#{account}"
+						itemLabel="#{account.accountNumber}" />
+				</h:selectOneMenu>
+				<h:commandButton rendered="#{false}">
+					<f:ajax event="click" execute="userAcc" render="otherAcc" />
+				</h:commandButton>
+				<br />
+				<br />
+				<h:outputLabel
+					rendered="#{userService.transferRendered  and userService.toAccountRendered}"
+					value="To:" />
+				<h:selectOneMenu id="otherAcc"
+					value="#{userService.otherAccountNumber}"
+					rendered="#{userService.transferRendered and  userService.toAccountRendered}"
+					title="Choose an account!" converter="#{AccountsConverter}"
+					onclick="submit()"
+					valueChangeListener="#{userService.valueChanged2}">
+					<f:selectItems value="#{userService.otherAccountsNumbers}"
+						var="account" itemValue="#{account}"
+						itemLabel="#{account.accountNumber}" />
+				</h:selectOneMenu>
+				<br />
+				<br />
+				<h:inputText pt:placeholder="Amount" id="amount"
+					style="text-align:center" binding="#{amount}"
+					rendered="#{userService.transferRendered}" />
+				<br />
+				<h:commandButton rendered="#{userService.transferRendered}"
+					value="OK" id="transfer"
+					action="#{userService.doTransfer(amount.value)}" />
+				<h:commandButton rendered="#{userService.transferRendered}"
+					value="Cancel" id="cancel"
+					actionListener="#{userService.setTransferRendered(false)}"
+					action="#{userService.setAccountsRendered(true)}" />
+			</h:form>
+			<h:form id="history">
+				<div align="center" class="login">
+					<h:outputLabel rendered="#{userService.historyRendered}"
+						value="History of: " />
+					<h:selectOneMenu id="userAccounts"
+						value="#{userService.accountNumber}"
+						rendered="#{userService.historyRendered}"
+						title="Choose an account!" converter="#{AccountsConverter}"
+						onclick="submit()"
+						valueChangeListener="#{userService.valueChangedHistory}">
+						<f:selectItems value="#{userService.userAccountsNumbers}"
+							var="account" itemValue="#{account}"
+							itemLabel="#{account.accountNumber}" />
+					</h:selectOneMenu>
+					<h:commandButton rendered="#{false}">
+						<f:ajax event="change" execute="userAccounts" render="listHistory" />
+					</h:commandButton>
+				</div>
+			</h:form>
+		</div>
+		<div align="center" style="width: 100%" class="login">
+			<h:panelGrid styleClass="centered">
+				<h:dataTable styleClass="table_one" rowClasses="td_one"
+					var="historyView" id="listHistory" value="#{userService.hViewList}"
+					rendered="#{userService.historyRendered}">
+					<h:column>
+						<f:facet name="header">
+                        From:
+                    </f:facet>
+						<h:outputText value="#{historyView.fromName}: " />
+						<h:outputText value="#{historyView.fromAccount.accountNumber}" />
+					</h:column>
+
+					<h:column>
+						<f:facet name="header">
+                        To:
+                    </f:facet>
+						<h:outputText value="#{historyView.toName}: " />
+						<h:outputText value="#{historyView.toAccount.accountNumber}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+                        Currency
+                    </f:facet>
+						<h:outputText value="#{historyView.currency}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+                        Note:
+                    </f:facet>
+						<h:outputText value="Debit" rendered="#{historyView.creaditLoad}" />
+						<h:outputText value="Credit"
+							rendered="#{!historyView.creaditLoad}" />
+					</h:column>
+					<h:column>
+						<f:facet name="header">
+                        Amount
+                    </f:facet>
+						<h:outputText value="#{historyView.amount}" />
+					</h:column>
+
+
+
+				</h:dataTable>
+
+			</h:panelGrid>
+		</div>
+	</div>
+
+
+</body>
+
+</html>

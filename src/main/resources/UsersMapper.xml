@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- A Users tábla lekérdezései -->
+<mapper namespace="main.java.pojos.Users">
+	<resultMap type="Users" id="usersResult">
+		<result property="id" column="ID" />
+		<result property="name" column="NAME" />
+		<result property="password" column="PASSWORD" />
+	</resultMap>
+	<select id="getAllUser" resultMap="usersResult">
+		SELECT * FROM BANKDEMO.USERS;
+	</select>
+	<select id="loginUser" parameterType="map" resultMap="usersResult">
+		SELECT *
+		FROM BANKDEMO.USERS WHERE NAME = #{name} AND
+		PASSWORD=#{password} ;
+	</select>
+
+</mapper>
+
